@@ -1,0 +1,19 @@
+CREATE CATALOG IF NOT EXISTS claims_dev;
+CREATE CATALOG IF NOT EXISTS claims;
+
+CREATE SCHEMA IF NOT EXISTS claims_dev.landing;
+CREATE SCHEMA IF NOT EXISTS claims_dev.bronze;
+CREATE SCHEMA IF NOT EXISTS claims_dev.silver;
+CREATE SCHEMA IF NOT EXISTS claims_dev.gold;
+CREATE SCHEMA IF NOT EXISTS claims_dev.ml;
+
+CREATE SCHEMA IF NOT EXISTS claims.landing;
+CREATE SCHEMA IF NOT EXISTS claims.bronze;
+CREATE SCHEMA IF NOT EXISTS claims.silver;
+CREATE SCHEMA IF NOT EXISTS claims.gold;
+CREATE SCHEMA IF NOT EXISTS claims.ml;
+
+CREATE VOLUME IF NOT EXISTS claims_dev.landing.raw;
+CREATE VOLUME IF NOT EXISTS claims_dev.landing.checkpoints;
+CREATE VOLUME IF NOT EXISTS claims.landing.raw;
+CREATE VOLUME IF NOT EXISTS claims.landing.checkpoints;
