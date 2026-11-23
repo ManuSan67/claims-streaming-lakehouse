@@ -1,0 +1,80 @@
+resources:
+  jobs:
+    claims_daily:
+      name: claims_daily_${bundle.target}
+      parameters:
+        - name: through
+          default: "2026-06-30"
+        - name: retrain
+          default: "false"
+      tasks:
+        - task_key: generate
+          notebook_task:
+            notebook_path: ../notebooks/01_generate.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+
+        - task_key: bronze
+          depends_on:
+            - task_key: generate
+          notebook_task:
+            notebook_path: ../notebooks/02_bronze.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+
+        - task_key: policies
+          depends_on:
+            - task_key: bronze
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.claims_silver_policies.id}
+
+        - task_key: silver_events
+          depends_on:
+            - task_key: policies
+          notebook_task:
+            notebook_path: ../notebooks/03_silver_events.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+
+        - task_key: gold
+          depends_on:
+            - task_key: silver_events
+          notebook_task:
+            notebook_path: ../notebooks/04_gold.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+
+        - task_key: features
+          depends_on:
+            - task_key: gold
+          notebook_task:
+            notebook_path: ../notebooks/05_features.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+
+        - task_key: retrain_check
+          depends_on:
+            - task_key: features
+          condition_task:
+            op: EQUAL_TO
+            left: "{{job.parameters.retrain}}"
+            right: "true"
+
+        - task_key: train
+          depends_on:
+            - task_key: retrain_check
+              outcome: "true"
+          notebook_task:
+            notebook_path: ../notebooks/06_train.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+
+        - task_key: score
+          depends_on:
+            - task_key: features
+            - task_key: train
+          run_if: NONE_FAILED
+          notebook_task:
+            notebook_path: ../notebooks/07_score.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
