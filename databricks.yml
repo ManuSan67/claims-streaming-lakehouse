@@ -1,0 +1,24 @@
+bundle:
+  name: claims-streaming-lakehouse
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    default: claims_dev
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-ff9acdb5-d5b2.cloud.databricks.com
+
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-ff9acdb5-d5b2.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: claims

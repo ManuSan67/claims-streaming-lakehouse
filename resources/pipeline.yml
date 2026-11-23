@@ -1,0 +1,12 @@
+resources:
+  pipelines:
+    claims_silver_policies:
+      name: claims_silver_policies_${bundle.target}
+      catalog: ${var.catalog}
+      schema: silver
+      serverless: true
+      libraries:
+        - glob:
+            include: ../src/pipeline/**
+      configuration:
+        catalog: ${var.catalog}
