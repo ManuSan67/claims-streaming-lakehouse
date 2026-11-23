@@ -59,6 +59,12 @@ The job claims_daily runs generate, bronze, the policies pipeline, silver events
 
 GitHub Actions runs the generator tests on every push and pull request, and deploys the bundle to the prod target on every push to main. The dev target uses the claims_dev catalog and prod uses claims; a full prod run reproduced the dev numbers exactly.
 
+## Orchestration with Airflow
+
+The same job can be driven from Apache Airflow. airflow/dags/claims_daily.py uses DatabricksRunNowOperator to find claims_daily_prod by name, pass through and retrain as job parameters and wait until the run finishes. Locally it runs on Airflow 3.3 in a single Docker container (airflow standalone) with the Databricks provider. The connection uses a personal access token limited to the jobs scope with read and write; a read-only token gets a 403 when it tries to start the run.
+
+![Airflow run](img/airflow.png)
+
 ## Repository
 
 - setup/catalogs.sql: catalogs, schemas and volumes
@@ -66,6 +72,9 @@ GitHub Actions runs the generator tests on every push and pull request, and depl
 - src/pipeline/policies.sql: SCD2 pipeline
 - notebooks/01 to 08: generation, bronze, silver, gold, features, training, scoring, optimization
 - resources/: pipeline and job definitions
+
+- airflow/dags/claims_daily.py: Airflow DAG that triggers the job
+
 - databricks.yml: bundle with dev and prod targets
 - test/test_generator.py: generator tests
 - .github/workflows/ci.yml: tests and deployment
